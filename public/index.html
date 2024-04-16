@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Index</title>
+  <style>
+    main {
+      width: 600px;
+      margin: auto;
+      padding: 20px 0 0 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Upload a File</h1>
+    <div>
+      <label for="file-input">Select file to upload:</label>
+      <input type="file" id="file-input" name="file-input" multiple>
+      <br>
+      <button id="upload-btn">Upload</button>
+    </div>
+    <div id="files-list"></div>
+  </main>
+</body>
+<script>
+
+  const uploadBtn = document.getElementById('upload-btn')
+
+  uploadBtn.onclick = () => {
+    const fileInput = document.getElementById('file-input')
+    const formData = new FormData()
+    for (const file of fileInput.files) {
+      formData.append('files', file)
+    }
+    console.log(JSON.stringify(formData))
+    fetch('/upload', {
+      method: 'POST',
+      body: formData
+    })
+
+  }
+
+</script>
+</html>

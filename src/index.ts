@@ -1,10 +1,10 @@
 import http from "node:http";
+import { handleRequest } from "./request-handler.js";
 
 const server = http.createServer();
 
 server.on("request", (req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("Hello, World!");
+  handleRequest(req, res);
 });
 
 server.listen(3000, () => {
