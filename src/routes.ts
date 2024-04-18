@@ -2,7 +2,6 @@ import { readFile } from "fs/promises";
 import { IncomingMessage, ServerResponse } from "http";
 import { join } from "path";
 import { parseFormBuffer } from "./lib/parse-multipart-form.js";
-import { write, writeFile } from "fs";
 import { groupPartsByType } from "./lib/group-parts-by-type.js";
 import { validateContent } from "./lib/validate-content-type.js";
 import { applyProcessing } from "./lib/apply-processing.js";
@@ -28,17 +27,26 @@ export const routes = {
       });
       req.on("end", async () => {
         const contentTypeHeader = req.headers["content-type"];
-        const partBoundaryString = `--${contentTypeHeader.split("boundary=")[1]}`;
+        const partBoundaryString = `--${
+          contentTypeHeader.split("boundary=")[1]
+        }`;
 
         const body = Buffer.concat(chunks);
 
-        const formParts = parseFormBuffer(body, partBoundaryString)
-        const {files, options} = groupPartsByType(formParts)
+        const formParts = parseFormBuffer(body, partBoundaryString);
+        const { files, options } = groupPartsByType(formParts);
 
-        const validFiles = validateContent(files)
+        const validFiles = validateContent(files);
+        const filesArr = validFiles.map((fileObj) => fileObj.body);
 
-        applyProcessing(validFiles, options)
+        const optionsObj = {};
+        options.forEach((option) => {
+          optionsObj[option.name] = Buffer.from(option.body, "hex")
+            .toString()
+            .replace("\r\n", "");
+        });
 
+        applyProcessing(filesArr, optionsObj);
       });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ message: "File uploaded successfully" }));
