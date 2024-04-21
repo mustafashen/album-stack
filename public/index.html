@@ -1,46 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Index</title>
-  <style>
-    main {
-      width: 600px;
-      margin: auto;
-      padding: 20px 0 0 0;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Upload a File</h1>
-    <div>
-      <label for="file-input">Select file to upload:</label>
-      <input type="file" id="file-input" name="file-input" multiple>
-      <br>
-      <button id="upload-btn">Upload</button>
-    </div>
-    <div id="files-list"></div>
-  </main>
-</body>
-<script>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index</title>
+    <style>
+      main {
+        display: flex;
+        flex-flow: row wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div>
+        <h1>Bulk Image Processor</h1>
+        <div>
+          <h2><label for="file-input">Select file to upload:</label></h2>
+          <input type="file" id="file-input" name="file-input" multiple />
+        </div>
+        <div>
+          <h2>Processing Options</h2>
+          <label for="width"><strong>Width:</strong></label>
+          <input type="number" id="width" name="width" value="240" />
+          <br />
+          <label for="height"><strong>Height:</strong></label>
+          <input type="number" id="height" name="height" value="240" />
+          <br />
+          <label for="rotate"><strong>Rotate:</strong></label>
+          <input type="number" id="rotate" name="rotate" value="0" />
+          <br />
+          <label for="blur"><strong>Blur:</strong></label>
+          <input type="number" id="blur" name="blur" value="0.3" />
+          <br />
+          <label for="flip"><strong>Flip:</strong></label>
+          <input type="checkbox" id="flip" name="flip" />
+          <br />
+          <label for="flop"><strong>Flop:</strong></label>
+          <input type="checkbox" id="flop" name="flop" />
+        </div>
+        <div>
+          <button id="upload-btn">Upload</button>
+        </div>
+      </div>
+      <ul id="files-list"></ul>
+    </main>
+  </body>
+  <script>
+    const uploadBtn = document.getElementById("upload-btn");
 
-  const uploadBtn = document.getElementById('upload-btn')
+    uploadBtn.onclick = () => {
+      const fileInput = document.getElementById("file-input");
 
-  uploadBtn.onclick = () => {
-    const fileInput = document.getElementById('file-input')
-    const formData = new FormData()
-    for (const file of fileInput.files) {
-      formData.append('files', file)
-    }
-    console.log(JSON.stringify(formData))
-    fetch('/upload', {
-      method: 'POST',
-      body: formData
-    })
+      const width = document.getElementById("width").value;
+      const height = document.getElementById("height").value;
+      const rotate = document.getElementById("rotate").value;
+      const blur = document.getElementById("blur").value;
+      const flip = document.getElementById("flip").checked;
+      const flop = document.getElementById("flop").checked;
 
-  }
+      console.log(width, height, rotate, blur, flip, flop);
 
-</script>
+      const formData = new FormData();
+      Object.values(fileInput.files).forEach((file, index) => {
+        formData.append(`${index}`, file);
+      });
+
+      formData.append("width", width);
+      formData.append("height", height);
+      formData.append("rotate", rotate);
+      formData.append("blur", blur);
+      formData.append("flip", flip);
+      formData.append("flop", flop);
+
+      fetch("/upload", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((body) => {
+          const downloadSection = `
+            <li>
+              <a href="/download?fileName=${body.fileName}">Download processed images: ${body.fileName}</a>
+            </li>
+          `;
+          const fileList = document.querySelector("#files-list");
+          fileList.insertAdjacentHTML("beforeend", downloadSection);
+        });
+    };
+  </script>
 </html>

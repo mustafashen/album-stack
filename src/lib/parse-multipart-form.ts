@@ -5,12 +5,12 @@ function parsePartHead(partHead: string) {
     partHead.match(/Content-Type: (.*)/)[1];
   const fileName =
     partHead.match(/filename="(.*?)"/) && partHead.match(/filename="(.*?)"/)[1];
-  
+
   return {
     name,
     contentType,
     fileName,
-  }
+  };
 }
 
 export function parseFormBuffer(body: Buffer, boundary: string) {
@@ -24,7 +24,9 @@ export function parseFormBuffer(body: Buffer, boundary: string) {
     const partHead = formPart[0];
     const partBody = formPart[1];
 
-    const headObj = parsePartHead(Buffer.from(partHead, "hex").toString("utf-8"));
+    const headObj = parsePartHead(
+      Buffer.from(partHead, "hex").toString("utf-8")
+    );
 
     return {
       ...headObj,
@@ -32,5 +34,5 @@ export function parseFormBuffer(body: Buffer, boundary: string) {
     };
   });
 
-  return formPartsArr
+  return formPartsArr;
 }

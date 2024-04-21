@@ -1,5 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { routes } from "./routes.js";
+import { parseUrl } from "./lib/parseUrl.js";
 
 async function handleRoute(
   req: IncomingMessage,
@@ -7,12 +8,13 @@ async function handleRoute(
 ) {
   
   try {
-    const route = routes[req.url];
+    const parsedUrl = parseUrl(req)
+    const route = routes[parsedUrl.pathname];
     if (route) {
       const method = req.method.toUpperCase();
       const handler = route[method];
       if (handler) {
-        await handler(req, res);
+        await handler(req, res, parsedUrl);
       } else throw new Error("Method not allowed");
     } else throw new Error("Route not found");
   } catch (error) {
@@ -26,5 +28,5 @@ export async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage>
 ) {
-  handleRoute(req, res);
+  await handleRoute(req, res);
 }
