@@ -1,10 +1,12 @@
 function parsePartHead(partHead: string) {
-  const name = partHead.match(/name="(.*?)"/)[1];
-  const contentType =
-    partHead.match(/Content-Type: (.*)/) &&
-    partHead.match(/Content-Type: (.*)/)[1];
-  const fileName =
-    partHead.match(/filename="(.*?)"/) && partHead.match(/filename="(.*?)"/)[1];
+  const nameMatch = partHead.match(/name="(.*?)"/)
+  const contentTypeMatch = partHead.match(/Content-Type: (.*)/)
+  const fileNameMatch = partHead.match(/filename="(.*?)"/)
+
+
+  const name = nameMatch ? nameMatch[1] : null;
+  const contentType = contentTypeMatch ? contentTypeMatch[1] : null;
+  const fileName = fileNameMatch ? fileNameMatch[1] : null;
 
   return {
     name,
